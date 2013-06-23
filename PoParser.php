@@ -125,6 +125,22 @@ class PoParser {
 		return $sectionDetails;
 	}
 
+	protected function parseHeader($headerString) {
+		$header = '';
+		$meta = array();
+
+		$headerLines = explode("\n", $headerString);
+		foreach ($headerLines as $headerLine) {
+			if (preg_match('/^"([^:]*):(.*)"$/i', $headerLine, $matches)) {
+				$meta[$matches[1]] = str_replace('\n', '', $matches[2]);
+			} else {
+				$header .= $headerLine . "\n";
+			}
+		}
+
+		return array('header' => $header, 'meta' => $meta);
+	}
+
 	/*
 	 * @deprecated
 	 */
@@ -139,7 +155,8 @@ class PoParser {
 			return;
 		}
 		$output = array(
-		    'header' => array(),
+		    'header' => '',
+		    'meta' => array(),
 		    'strings' => array()
 		);
 
@@ -154,7 +171,9 @@ class PoParser {
 		 * the first section is always the header,
 		 * @todo create a function to break up the header further
 		 */
-		$output['header'] = array_shift($sections);
+		$po_head = $this->parseHeader(array_shift($sections));
+		$output['header'] = $po_head['header'];
+		$output['meta'] = $po_head['meta'];
 
 		/*
 		 * the remaing sections should be the msgid/msgstr combinations and details
