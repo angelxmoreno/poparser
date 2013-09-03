@@ -9,11 +9,26 @@
 
 class PoParser {
 
+	protected $delimeters = array(
+	    'msgid',
+	    'msgid_plural',
+	    'msgstr',
+	    'msgstr\[[0-9]*\]',
+	    '#,',
+	    '#~',
+	    '#:',
+	    '#.',
+	    '#',
+	    '".*'
+	);
+
 	protected function parseMsgId($line, &$output) {
-		$success = @ereg('msgid "(.*)"', $line, $result);
-		if ($success === false) return false;
-		$output = $result[1];
-		return true;
+		if (@ereg('msgid "(.+)"', $line, $result)) {
+			$output = $result[1];
+			return true;
+		} elseif (@ereg('msgid ""\n"', $line, $result)) {
+
+		}
 	}
 
 
@@ -116,8 +131,9 @@ class PoParser {
 						$sectionDetails['msgstr'] = $output;
 					}
 					break;
+
 				default:
-					//un recognized line
+					//unrecognized line
 					$sectionDetails['unrecognized'] = $sectionLine;
 			}
 
